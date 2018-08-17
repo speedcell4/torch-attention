@@ -1,5 +1,3 @@
-from typing import NoReturn
-
 import torch
 from torch import nn
 from torch.nn import init
@@ -8,7 +6,7 @@ from torch_attention import Attention, DotProduct
 
 
 class MultiHead(Attention):
-    def __init__(self, in_features1: int, in_features2: int, num_heads: int, out_features: int):
+    def __init__(self, in_features1: int, in_features2: int, num_heads: int, out_features: int) -> None:
         super(MultiHead, self).__init__()
 
         assert num_heads >= 1
@@ -28,7 +26,7 @@ class MultiHead(Attention):
 
         self.reset_parameters()
 
-    def reset_parameters(self) -> NoReturn:
+    def reset_parameters(self) -> None:
         with torch.no_grad():
             init.orthogonal_(self.Q)
             init.orthogonal_(self.K)

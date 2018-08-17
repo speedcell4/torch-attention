@@ -5,7 +5,7 @@ from torch_attention import Attention, masked_fill
 
 
 class DotProduct(Attention):
-    def __init__(self):
+    def __init__(self) -> None:
         super(DotProduct, self).__init__()
         self.softmax = nn.Softmax(dim=-1)
 

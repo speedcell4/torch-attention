@@ -1,8 +1,7 @@
 import torch
 from hypothesis import given, strategies as st
 
-from torch_attention.dot_product import DotProduct
-from torch_attention.multi_head import MultiHead
+from torch_attention import DotProduct, Facets, MultiHead
 
 hypo = dict(
     batches=st.lists(st.integers(1, 10), min_size=1, max_size=5),
@@ -13,15 +12,28 @@ hypo = dict(
 )
 
 
+@given(
+    bias=st.booleans(),
+    **hypo,
+)
+def test_facets(batches, channel1, channel2, in_features1, in_features2, bias):
+    attention = Facets(in_features1=in_features1, bias=bias)
+    Q = torch.rand(*batches, channel1, in_features1)
+    K = torch.rand(*batches, channel2, in_features1)
+    V = torch.rand(*batches, channel2, in_features2)
+
+    assert attention(Q, K, V).size() == (*batches, channel1, in_features2)
+
+
 @given(**hypo)
 def test_dot_product(batches, channel1, channel2, in_features1, in_features2):
-    dot_product = DotProduct()
+    attention = DotProduct()
 
     Q = torch.rand(*batches, channel1, in_features1)
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
 
-    assert dot_product(Q, K, V).size() == (*batches, channel1, in_features2)
+    assert attention(Q, K, V).size() == (*batches, channel1, in_features2)
 
 
 @given(
@@ -31,7 +43,7 @@ def test_dot_product(batches, channel1, channel2, in_features1, in_features2):
 )
 def test_multi_head(batches, channel1, channel2, in_features1, in_features2, num_heads, model_features):
     out_features = num_heads * model_features
-    dot_product = MultiHead(
+    attention = MultiHead(
         in_features1=in_features1, in_features2=in_features2,
         num_heads=num_heads, out_features=out_features,
     )
@@ -40,4 +52,4 @@ def test_multi_head(batches, channel1, channel2, in_features1, in_features2, num
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
 
-    assert dot_product(Q, K, V).size() == (*batches, channel1, out_features)
+    assert attention(Q, K, V).size() == (*batches, channel1, out_features)
