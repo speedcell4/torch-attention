@@ -35,15 +35,12 @@ class MultiHead(Attention):
             init.orthogonal_(self.V)
             init.kaiming_uniform_(self.W)
 
-    def forward(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
-                mask: torch.ByteTensor = None) -> torch.Tensor:
-        Q = (Q @ self.Q).view(*Q.size()[:-1], self.num_heads, -1)
-        K = (K @ self.K).view(*K.size()[:-1], self.num_heads, -1)
-        V = (V @ self.V).view(*V.size()[:-1], self.num_heads, -1)
-        A = self.dot_product(
-            Q=Q.transpose(-2, -3),
-            K=K.transpose(-2, -3),
-            V=V.transpose(-2, -3),
-            mask=mask,
-        ).transpose(-2, -3)
-        return A.contiguous().view(*A.size()[:-2], -1) @ self.W
+    def attend(self, Q: torch.Tensor, K: torch.Tensor, mask: torch.ByteTensor = None) -> torch.Tensor:
+        Q = (Q @ self.Q).view(*Q.size()[:-1], self.num_heads, -1).transpose(-2, -3)
+        K = (K @ self.K).view(*K.size()[:-1], self.num_heads, -1).transpose(-2, -3)
+        return self.dot_product.attend(Q=Q, K=K, mask=mask)
+
+    def interact(self, A: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
+        V = (V @ self.V).view(*V.size()[:-1], self.num_heads, -1).transpose(-2, -3)
+        R = self.dot_product.interact(A, V).transpose(-2, -3)
+        return R.contiguous().view(*R.size()[:-2], -1) @ self.W
