@@ -5,7 +5,7 @@ with open('README.md', mode='r', encoding='utf-8') as fd:
 
 setup(
     name='torch_attention',
-    version='0.1.0',
+    version='0.1.2',
     packages=['torch_attention'],
     install_requires=['torch'],
     url='https://github.com/speedcell4/torch_attention',
