@@ -4,11 +4,11 @@ with open('README.md', mode='r', encoding='utf-8') as fd:
     long_description = fd.read()
 
 setup(
-    name='torch_attention',
-    version='0.1.2',
+    name='torch-attention',
+    version='0.1.3',
     packages=['torch_attention'],
     install_requires=['torch'],
-    url='https://github.com/speedcell4/torch_attention',
+    url='https://github.com/speedcell4/torch-attention',
     license='MIT',
     author='speedcell4',
     author_email='speedcell4@gmail.com',
