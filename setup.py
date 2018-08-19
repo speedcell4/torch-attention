@@ -9,7 +9,7 @@ setup(
     packages=['torch_attention'],
     install_requires=['torch'],
     url='https://github.com/speedcell4/torch-attention',
-    license='MIT',
+    license='MPL2',
     author='speedcell4',
     author_email='speedcell4@gmail.com',
     description='attention mechanism',
