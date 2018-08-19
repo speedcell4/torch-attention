@@ -1,20 +1,17 @@
 import torch
-from hypothesis import given, strategies as st
+from hypothesis import given
 
+from tests import *
 from torch_attention import DotProduct, Facets, MultiHead
-
-hypo = dict(
-    batches=st.lists(st.integers(1, 10), min_size=1, max_size=5),
-    channel1=st.integers(1, 10),
-    channel2=st.integers(1, 10),
-    in_features1=st.integers(20, 100),
-    in_features2=st.integers(20, 100),
-)
 
 
 @given(
-    bias=st.booleans(),
-    **hypo,
+    batches=BATCHES,
+    channel1=CHANNEL,
+    channel2=CHANNEL,
+    in_features1=NORMAL_FEATURES,
+    in_features2=NORMAL_FEATURES,
+    bias=BIAS,
 )
 def test_facets(batches, channel1, channel2, in_features1, in_features2, bias):
     attention = Facets(in_features1=in_features1, bias=bias)
@@ -25,7 +22,13 @@ def test_facets(batches, channel1, channel2, in_features1, in_features2, bias):
     assert attention(Q, K, V).size() == (*batches, channel1, in_features2)
 
 
-@given(**hypo)
+@given(
+    batches=BATCHES,
+    channel1=CHANNEL,
+    channel2=CHANNEL,
+    in_features1=NORMAL_FEATURES,
+    in_features2=NORMAL_FEATURES,
+)
 def test_dot_product(batches, channel1, channel2, in_features1, in_features2):
     attention = DotProduct()
 
@@ -37,9 +40,13 @@ def test_dot_product(batches, channel1, channel2, in_features1, in_features2):
 
 
 @given(
-    **hypo,
-    num_heads=st.integers(1, 10),
-    model_features=st.integers(5, 20),
+    batches=BATCHES,
+    channel1=CHANNEL,
+    channel2=CHANNEL,
+    in_features1=NORMAL_FEATURES,
+    in_features2=NORMAL_FEATURES,
+    num_heads=NUM_HEADS,
+    model_features=TINY_FEATURES,
 )
 def test_multi_head(batches, channel1, channel2, in_features1, in_features2, num_heads, model_features):
     out_features = num_heads * model_features
