@@ -13,6 +13,8 @@ class Facets(Attention):
         self.softmax = nn.Softmax(dim=-1)
 
     def attend(self, Q: torch.Tensor, K: torch.Tensor) -> torch.Tensor:
+        assert Q.ndimension() == K.ndimension(), f'{Q.ndimension()} != {K.ndimension()}'
+
         *batches, channel1, in_features1 = Q.size()
         *batches, channel2, in_features1 = K.size()
         Q = Q.view(*batches, channel1, 1, in_features1).expand(*batches, channel1, channel2, in_features1)
