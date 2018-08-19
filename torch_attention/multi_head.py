@@ -20,7 +20,7 @@ class MultiHead(Attention):
         self.Q = nn.Parameter(torch.Tensor(self.in_features1, self.out_features))
         self.K = nn.Parameter(torch.Tensor(self.in_features1, self.out_features))
         self.V = nn.Parameter(torch.Tensor(self.in_features2, self.out_features))
-        self.W = nn.Parameter(torch.Tensor(self.out_features, self.out_features))
+        self.W = nn.Parameter(torch.Tensor(num_heads, self.out_features // num_heads, self.out_features))
 
         self.reset_parameters()
 
@@ -45,4 +45,4 @@ class MultiHead(Attention):
         if mask is not None:
             A = masked_fill(A, mask, filling_value=-float('inf'))
         R = torch.einsum('...hqk,...khx->...qhx', (A, V))
-        return R.contiguous().view(*R.size()[:-2], -1) @ self.W
+        return torch.einsum('...qhx,hxy->...qy', (R, self.W))
