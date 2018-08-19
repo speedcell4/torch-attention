@@ -18,7 +18,10 @@ def test_facets(batches, channel1, channel2, in_features1, in_features2, bias):
     Q = torch.rand(*batches, channel1, in_features1)
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
+    A = torch.rand(*batches, channel1, channel2)
 
+    assert attention.attend(Q, K).size() == A.size()
+    assert attention.interact(A, V).size() == (*batches, channel1, in_features2)
     assert attention(Q, K, V).size() == (*batches, channel1, in_features2)
 
 
@@ -35,7 +38,10 @@ def test_dot_product(batches, channel1, channel2, in_features1, in_features2):
     Q = torch.rand(*batches, channel1, in_features1)
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
+    A = torch.rand(*batches, channel1, channel2)
 
+    assert attention.attend(Q, K).size() == A.size()
+    assert attention.interact(A, V).size() == (*batches, channel1, in_features2)
     assert attention(Q, K, V).size() == (*batches, channel1, in_features2)
 
 
@@ -58,5 +64,8 @@ def test_multi_head(batches, channel1, channel2, in_features1, in_features2, num
     Q = torch.rand(*batches, channel1, in_features1)
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
+    A = torch.rand(*batches, num_heads, channel1, channel2)
 
+    assert attention.attend(Q, K).size() == A.size()
+    assert attention.interact(A, V).size() == (*batches, channel1, out_features)
     assert attention(Q, K, V).size() == (*batches, channel1, out_features)
