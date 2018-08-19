@@ -11,6 +11,8 @@ class Attention(nn.Module, metaclass=ABCMeta):
         raise NotImplementedError
 
     def interact(self, A: torch.Tensor, V: torch.Tensor, mask: torch.ByteTensor = None) -> torch.Tensor:
+        assert A.ndimension() == V.ndimension(), f'{A.ndimension()} != {V.ndimension()}'
+
         if mask is not None:
             A = masked_fill(A, mask=mask, filling_value=-float('inf'))
         return self.softmax(A) @ V
