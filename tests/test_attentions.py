@@ -1,4 +1,3 @@
-import torch
 from hypothesis import given
 
 from tests import *
@@ -15,10 +14,17 @@ from torch_attention import DotProduct, Facets, MultiHead
 )
 def test_facets(batches, channel1, channel2, in_features1, in_features2, bias):
     attention = Facets(in_features1=in_features1, bias=bias)
+
     Q = torch.rand(*batches, channel1, in_features1)
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
     A = torch.rand(*batches, channel1, channel2)
+
+    attention = attention.to(device)
+    Q = Q.to(device)
+    K = K.to(device)
+    V = V.to(device)
+    A = A.to(device)
 
     assert attention.attend(Q, K).size() == A.size()
     assert attention.interact(A, V).size() == (*batches, channel1, in_features2)
@@ -39,6 +45,12 @@ def test_dot_product(batches, channel1, channel2, in_features1, in_features2):
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
     A = torch.rand(*batches, channel1, channel2)
+
+    attention = attention.to(device)
+    Q = Q.to(device)
+    K = K.to(device)
+    V = V.to(device)
+    A = A.to(device)
 
     assert attention.attend(Q, K).size() == A.size()
     assert attention.interact(A, V).size() == (*batches, channel1, in_features2)
@@ -65,6 +77,12 @@ def test_multi_head(batches, channel1, channel2, in_features1, in_features2, num
     K = torch.rand(*batches, channel2, in_features1)
     V = torch.rand(*batches, channel2, in_features2)
     A = torch.rand(*batches, num_heads, channel1, channel2)
+
+    attention = attention.to(device)
+    Q = Q.to(device)
+    K = K.to(device)
+    V = V.to(device)
+    A = A.to(device)
 
     assert attention.attend(Q, K).size() == A.size()
     assert attention.interact(A, V).size() == (*batches, channel1, out_features)
