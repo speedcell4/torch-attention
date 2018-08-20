@@ -1,3 +1,6 @@
+import os
+
+import torch
 from hypothesis import strategies as st
 
 BATCH = st.integers(1, 10)
@@ -12,3 +15,11 @@ NORMAL_FEATURES = st.integers(50, 100)
 NUM_HEADS = st.integers(1, 10)
 
 BIAS = st.booleans()
+
+if torch.cuda.is_available():
+    if 'PYTEST_DEVICE' in os.environ:
+        device = os.environ['PYTEST_DEVICE']
+        torch.cuda.set_device(int(device))
+        device = torch.device(f'cuda:{device}')
+else:
+    device = torch.device('cpu')
