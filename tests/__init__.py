@@ -20,6 +20,7 @@ if torch.cuda.is_available():
     if 'PYTEST_DEVICE' in os.environ:
         device = os.environ['PYTEST_DEVICE']
         torch.cuda.set_device(int(device))
-        device = torch.device(f'cuda:{device}')
+        DEVICE = st.sampled_from([torch.device(f'cuda:{device}'), torch.device('cpu')])
+        del device
 else:
-    device = torch.device('cpu')
+    DEVICE = st.sampled_from([torch.device('cpu')])
