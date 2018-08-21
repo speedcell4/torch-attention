@@ -13,6 +13,7 @@ SMALL_FEATURES = st.integers(20, 50)
 NORMAL_FEATURES = st.integers(50, 100)
 
 NUM_HEADS = st.integers(1, 10)
+NUM_LAYERS = st.integers(1, 10)
 
 BIAS = st.booleans()
 

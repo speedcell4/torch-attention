@@ -4,6 +4,7 @@ from torch_attention.dot_product import DotProduct
 from torch_attention.multi_head import MultiHead
 from torch_attention.facets import Facets
 from torch_attention.bilinear import BiLinearAttention
+from torch_attention.transformer import TransformerEncoder
 
 __all__ = [
     'masked_fill',
@@ -11,4 +12,5 @@ __all__ = [
     'Facets',
     'DotProduct', 'MultiHead',
     'BiLinearAttention',
+    'TransformerEncoder',
 ]
