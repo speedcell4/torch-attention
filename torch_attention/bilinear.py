@@ -6,12 +6,12 @@ from torch_attention import Attention
 
 
 class BiLinearAttention(Attention):
-    def __init__(self, in_features1: int, in_features2: int, hidden_size: int = None):
+    def __init__(self, q_features: int, k_features: int, hidden_size: int = None):
         super(BiLinearAttention, self).__init__()
         if hidden_size is None:
-            hidden_size = max(in_features1, in_features2)
-        self.Q = nn.Parameter(torch.Tensor(in_features1, hidden_size))
-        self.K = nn.Parameter(torch.Tensor(in_features2, hidden_size))
+            hidden_size = max(q_features, k_features)
+        self.Q = nn.Parameter(torch.Tensor(q_features, hidden_size))
+        self.K = nn.Parameter(torch.Tensor(k_features, hidden_size))
         self.activation = nn.ReLU(inplace=True)
 
         self.W = nn.Parameter(torch.Tensor(hidden_size, 1, hidden_size))

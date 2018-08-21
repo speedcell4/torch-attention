@@ -6,20 +6,20 @@ from torch_attention import Attention, masked_fill
 
 
 class MultiHead(Attention):
-    def __init__(self, in_features1: int, in_features2: int, num_heads: int, out_features: int) -> None:
+    def __init__(self, k_features: int, v_features: int, num_heads: int, out_features: int) -> None:
         super(MultiHead, self).__init__()
 
         assert num_heads >= 1
         assert out_features % num_heads == 0
 
         self.num_heads = num_heads
-        self.in_features1 = in_features1
-        self.in_features2 = in_features2
+        self.k_features = k_features
+        self.v_features = v_features
         self.out_features = out_features
 
-        self.Q = nn.Parameter(torch.Tensor(self.in_features1, self.out_features))
-        self.K = nn.Parameter(torch.Tensor(self.in_features1, self.out_features))
-        self.V = nn.Parameter(torch.Tensor(self.in_features2, self.out_features))
+        self.Q = nn.Parameter(torch.Tensor(self.k_features, self.out_features))
+        self.K = nn.Parameter(torch.Tensor(self.k_features, self.out_features))
+        self.V = nn.Parameter(torch.Tensor(self.v_features, self.out_features))
         self.W = nn.Parameter(torch.Tensor(num_heads, self.out_features // num_heads, self.out_features))
 
         self.reset_parameters()

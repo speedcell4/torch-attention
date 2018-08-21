@@ -9,5 +9,6 @@ __all__ = [
     'masked_fill',
     'Attention',
     'Facets',
-    'DotProduct', 'MultiHead', 'BiLinearAttention',
+    'DotProduct', 'MultiHead',
+    'BiLinearAttention',
 ]
