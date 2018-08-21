@@ -10,8 +10,9 @@ from torch_attention import BiLinearAttention, DotProduct, Facets, MultiHead
     channel2=CHANNEL,
     in_features=NORMAL_FEATURES,
     bias=BIAS,
+    device=DEVICE,
 )
-def test_facets(batches, channel1, channel2, in_features, bias):
+def test_facets(batches, channel1, channel2, in_features, bias, device):
     attention = Facets(in_features=in_features, bias=bias)
 
     Q = torch.rand(*batches, channel1, in_features)
@@ -36,8 +37,9 @@ def test_facets(batches, channel1, channel2, in_features, bias):
     channel2=CHANNEL,
     k_features=NORMAL_FEATURES,
     v_features=NORMAL_FEATURES,
+    device=DEVICE,
 )
-def test_dot_product(batches, channel1, channel2, k_features, v_features):
+def test_dot_product(batches, channel1, channel2, k_features, v_features, device):
     attention = DotProduct()
 
     Q = torch.rand(*batches, channel1, k_features)
@@ -64,8 +66,9 @@ def test_dot_product(batches, channel1, channel2, k_features, v_features):
     v_features=NORMAL_FEATURES,
     num_heads=NUM_HEADS,
     model_features=TINY_FEATURES,
+    device=DEVICE,
 )
-def test_multi_head(batches, channel1, channel2, k_features, v_features, num_heads, model_features):
+def test_multi_head(batches, channel1, channel2, k_features, v_features, num_heads, model_features, device):
     out_features = num_heads * model_features
     attention = MultiHead(
         k_features=k_features, v_features=v_features,
@@ -95,9 +98,10 @@ def test_multi_head(batches, channel1, channel2, k_features, v_features, num_hea
     q_features=NORMAL_FEATURES,
     k_features=NORMAL_FEATURES,
     v_features=NORMAL_FEATURES,
-    hidden_size=st.one_of(st.one_of(), NORMAL_FEATURES),
+    hidden_size=st.one_of(st.none(), NORMAL_FEATURES),
+    device=DEVICE,
 )
-def test_bilinear(batches, channel1, channel2, q_features, k_features, v_features, hidden_size):
+def test_bilinear(batches, channel1, channel2, q_features, k_features, v_features, hidden_size, device):
     attention = BiLinearAttention(q_features, k_features, hidden_size)
     Q = torch.rand(*batches, channel1, q_features)
     K = torch.rand(*batches, channel2, k_features)
