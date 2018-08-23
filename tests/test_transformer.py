@@ -13,14 +13,15 @@ from tests import *
     dropout=st.floats(0., 1.),
     window_sizes=WINDOW_SIZES,
     bias=st.booleans(),
+    head_features=st.one_of(st.none(), SMALL_FEATURES),
     device=DEVICE,
 )
 def test_transformer_encoder(
         batch, channel, num_layers, model_features,
-        num_heads, dropout, window_sizes, bias, device):
+        num_heads, dropout, window_sizes, bias, head_features, device):
     in_features = num_heads * model_features
     encoder = TransformerEncoder(
-        num_layers=num_layers, in_features=in_features, num_heads=num_heads,
+        num_layers=num_layers, in_features=in_features, num_heads=num_heads, head_features=head_features,
         dropout=dropout, window_sizes=window_sizes, bias=bias)
     x = torch.rand(batch, channel, in_features)
 
