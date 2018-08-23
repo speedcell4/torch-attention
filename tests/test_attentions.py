@@ -1,7 +1,7 @@
 from hypothesis import given
 
 from tests import *
-from torch_attention import BiLinearAttention, DotProduct, Facets, MultiHead
+from torch_attention import BiLinearAttention, DotProductAttention, FacetsAttention, MultiHeadAttention
 
 
 @given(
@@ -13,7 +13,7 @@ from torch_attention import BiLinearAttention, DotProduct, Facets, MultiHead
     device=DEVICE,
 )
 def test_facets(batches, channel1, channel2, in_features, bias, device):
-    attention = Facets(in_features=in_features, bias=bias)
+    attention = FacetsAttention(in_features=in_features, bias=bias)
 
     Q = torch.rand(*batches, channel1, in_features)
     K = torch.rand(*batches, channel2, in_features)
@@ -40,7 +40,7 @@ def test_facets(batches, channel1, channel2, in_features, bias, device):
     device=DEVICE,
 )
 def test_dot_product(batches, channel1, channel2, k_features, v_features, device):
-    attention = DotProduct()
+    attention = DotProductAttention()
 
     Q = torch.rand(*batches, channel1, k_features)
     K = torch.rand(*batches, channel2, k_features)
@@ -70,7 +70,7 @@ def test_dot_product(batches, channel1, channel2, k_features, v_features, device
 )
 def test_multi_head(batches, channel1, channel2, k_features, v_features, num_heads, model_features, device):
     out_features = num_heads * model_features
-    attention = MultiHead(
+    attention = MultiHeadAttention(
         k_features=k_features, v_features=v_features,
         num_heads=num_heads, out_features=out_features,
     )
