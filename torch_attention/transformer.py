@@ -44,47 +44,46 @@ class FeedForwardLayer(nn.Sequential):
 
 
 class TransformerEncoderBlock(nn.Module):
-    def __init__(self, in_features: int, num_heads: int = 8, window_sizes: Tuple[int, ...] = (1, 5, 1),
-                 dropout: float = 0.1, bias: bool = False) -> None:
+    def __init__(self, in_features: int, num_heads: int, head_features: int = None,
+                 window_sizes: Tuple[int, ...] = (1, 5, 1), dropout: float = 0.1, bias: bool = False) -> None:
         super(TransformerEncoderBlock, self).__init__()
         assert in_features % num_heads == 0
         assert all(window_size > 0 and window_size % 2 == 1 for window_size in window_sizes)
 
-        self.in_features = in_features
         self.out_features = in_features
 
-        self.multi_head = MultiHeadAttention(
-            out_features=in_features, num_heads=num_heads,
-            k_features=in_features, v_features=in_features,
+        self.attention = MultiHeadAttention(
+            num_heads=num_heads, head_features=head_features, out_features=in_features,
+            q_features=in_features, k_features=in_features, v_features=in_features,
         )
+        self.dropout1 = nn.Dropout(dropout, inplace=True)
+        self.layer_norm1 = nn.LayerNorm(in_features)
 
         self.feed_forward = FeedForwardLayer(
             in_features=in_features, window_sizes=window_sizes, bias=bias,
         )
-        self.dropout1 = nn.Dropout(dropout, inplace=True)
         self.dropout2 = nn.Dropout(dropout, inplace=True)
-        self.layer_norm1 = nn.LayerNorm(in_features)
         self.layer_norm2 = nn.LayerNorm(in_features)
 
     def reset_parameters(self) -> None:
-        self.multi_head.reset_parameters()
+        self.attention.reset_parameters()
         self.feed_forward.reset_parameters()
         self.layer_norm1.reset_parameters()
         self.layer_norm2.reset_parameters()
 
     def forward(self, x: torch.Tensor, mask: torch.ByteTensor = None) -> torch.Tensor:
-        y = self.multi_head(x, x, x, mask)
+        y = self.attention(x, x, x, mask)
         z = self.layer_norm1(self.dropout1(y) + x)
         w = self.feed_forward(z.transpose(-2, -1)).transpose(-2, -1)
         return self.layer_norm2(self.dropout2(w) + z)
 
 
 class TransformerEncoder(nn.Sequential):
-    def __init__(self, num_layers: int, in_features: int, num_heads: int,
-                 dropout: float, window_sizes: Tuple[int, ...] = (1, 5, 1), bias: bool = False) -> None:
+    def __init__(self, num_layers: int, in_features: int, num_heads: int, head_features: int = None,
+                 window_sizes: Tuple[int, ...] = (1, 5, 1), dropout: float = 0.1, bias: bool = False) -> None:
         super(TransformerEncoder, self).__init__(*[
             TransformerEncoderBlock(
-                in_features=in_features, num_heads=num_heads,
+                in_features=in_features, num_heads=num_heads, head_features=head_features,
                 dropout=dropout, window_sizes=window_sizes, bias=bias,
             ) for _ in range(num_layers)
         ])
@@ -95,5 +94,5 @@ class TransformerEncoder(nn.Sequential):
 
 
 if __name__ == '__main__':
-    net = TransformerEncoder(3, 512, 8, 0.1)
+    net = TransformerEncoder(num_layers=3, in_features=512, num_heads=8)
     print(net)
