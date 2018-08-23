@@ -4,9 +4,9 @@ from torch import nn
 from torch_attention import Attention
 
 
-class Facets(Attention):
+class FacetsAttention(Attention):
     def __init__(self, in_features: int, bias: bool = False) -> None:
-        super(Facets, self).__init__()
+        super(FacetsAttention, self).__init__()
         self.in_features = in_features
 
         self.fc = nn.Linear(in_features * 4, 1, bias=bias)

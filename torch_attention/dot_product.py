@@ -4,9 +4,9 @@ from torch import nn
 from torch_attention import Attention
 
 
-class DotProduct(Attention):
+class DotProductAttention(Attention):
     def __init__(self) -> None:
-        super(DotProduct, self).__init__()
+        super(DotProductAttention, self).__init__()
         self.softmax = nn.Softmax(dim=-1)
 
     def attend(self, Q: torch.Tensor, K: torch.Tensor) -> torch.Tensor:

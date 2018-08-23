@@ -13,6 +13,10 @@ SMALL_FEATURES = st.integers(20, 50)
 NORMAL_FEATURES = st.integers(50, 100)
 
 NUM_HEADS = st.integers(1, 10)
+NUM_LAYERS = st.integers(1, 10)
+
+WINDOW_SIZE = st.sampled_from([1, 3, 5, 7])
+WINDOW_SIZES = st.lists(WINDOW_SIZE, min_size=1, max_size=5)
 
 BIAS = st.booleans()
 
