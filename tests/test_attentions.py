@@ -62,17 +62,20 @@ def test_dot_product(batches, channel1, channel2, k_features, v_features, device
     batches=BATCHES,
     channel1=CHANNEL,
     channel2=CHANNEL,
+    q_features=NORMAL_FEATURES,
     k_features=NORMAL_FEATURES,
     v_features=NORMAL_FEATURES,
     num_heads=NUM_HEADS,
     model_features=TINY_FEATURES,
+    head_features=st.one_of(st.none(), SMALL_FEATURES),
     device=DEVICE,
 )
-def test_multi_head(batches, channel1, channel2, k_features, v_features, num_heads, model_features, device):
+def test_multi_head(batches, channel1, channel2, q_features, k_features, v_features,
+                    num_heads, model_features, head_features, device):
     out_features = num_heads * model_features
     attention = MultiHeadAttention(
-        k_features=k_features, v_features=v_features,
-        num_heads=num_heads, out_features=out_features,
+        q_features=q_features, k_features=k_features, v_features=v_features,
+        num_heads=num_heads, out_features=out_features, head_features=head_features,
     )
 
     Q = torch.rand(*batches, channel1, k_features)
