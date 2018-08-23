@@ -5,9 +5,9 @@ from torch.nn import init
 from torch_attention import Attention, masked_fill
 
 
-class MultiHead(Attention):
+class MultiHeadAttention(Attention):
     def __init__(self, k_features: int, v_features: int, num_heads: int, out_features: int) -> None:
-        super(MultiHead, self).__init__()
+        super(MultiHeadAttention, self).__init__()
 
         assert num_heads >= 1
         assert out_features % num_heads == 0
@@ -23,6 +23,10 @@ class MultiHead(Attention):
         self.W = nn.Parameter(torch.Tensor(num_heads, self.out_features // num_heads, self.out_features))
 
         self.reset_parameters()
+
+    def extra_repr(self) -> str:
+        return f'head={self.num_heads}, model_features={self.out_features // self.num_heads}, ' \
+               f'k_features={self.k_features}, v_features={self.v_features}'
 
     def reset_parameters(self) -> None:
         with torch.no_grad():
