@@ -47,8 +47,6 @@ class TransformerEncoderBlock(nn.Module):
     def __init__(self, in_features: int, num_heads: int, head_features: int = None,
                  window_sizes: Tuple[int, ...] = (1, 5, 1), dropout: float = 0.1, bias: bool = False) -> None:
         super(TransformerEncoderBlock, self).__init__()
-        assert in_features % num_heads == 0
-        assert all(window_size > 0 and window_size % 2 == 1 for window_size in window_sizes)
 
         self.out_features = in_features
 
