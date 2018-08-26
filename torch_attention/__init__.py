@@ -3,7 +3,7 @@ from abc import ABCMeta
 import torch
 from torch import nn
 
-from .utils import masked_fill
+from torch_attention.utils import masked_fill
 
 
 class Attention(nn.Module, metaclass=ABCMeta):
@@ -28,12 +28,14 @@ class Attention(nn.Module, metaclass=ABCMeta):
         return self.interact(self.attend(Q, K), V, mask=mask)
 
 
-from .attentions import DotProductAttention, BiLinearAttention, FacetsAttention
-from .multi_head import MultiHeadAttention
+from torch_attention.attentions import DotProductAttention, BiLinearAttention, FacetsAttention
+from torch_attention.multi_head import MultiHeadAttention
+from torch_attention.embedding import PositionEmbedding
 
 __all__ = [
     'masked_fill',
     'Attention',
     'DotProductAttention', 'BiLinearAttention', 'FacetsAttention',
     'MultiHeadAttention',
+    'PositionEmbedding',
 ]
