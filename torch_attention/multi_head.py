@@ -2,29 +2,34 @@ import torch
 from torch import nn
 from torch.nn import init
 
-from torch_attention import Attention, masked_fill
+from torch_attention import Attention
+
+
+def multi_head(a: torch.Tensor, num_heads: int) -> torch.Tensor:
+    return a.view(*a.size()[:-1], num_heads, -1).transpose_(-2, -3)
 
 
 class MultiHeadAttention(Attention):
-    def __init__(self, q_features: int, k_features: int, v_features: int,
-                 out_features: int, num_heads: int, head_features: int = None) -> None:
-        super(MultiHeadAttention, self).__init__()
+    def __init__(self, q_features: int, k_features: int, v_features: int, out_features: int,
+                 attention: Attention, num_heads: int, head_features: int) -> None:
+        assert attention.q_features == head_features
+        assert attention.k_features == head_features
+        assert attention.v_features == head_features
+        assert attention.out_features == head_features
 
-        if head_features is None:
-            assert out_features % num_heads == 0
-            head_features = out_features // num_heads
+        super(MultiHeadAttention, self).__init__(
+            q_features=q_features, k_features=k_features,
+            v_features=v_features, out_features=out_features,
+        )
 
         self.num_heads = num_heads
-        self.q_features = q_features
-        self.k_features = k_features
-        self.v_features = v_features
         self.head_features = head_features
-        self.out_features = out_features
 
-        self.Q = nn.Parameter(torch.Tensor(self.k_features, num_heads * self.head_features))
-        self.K = nn.Parameter(torch.Tensor(self.k_features, num_heads * self.head_features))
-        self.V = nn.Parameter(torch.Tensor(self.v_features, num_heads * self.head_features))
-        self.W = nn.Parameter(torch.Tensor(num_heads, self.head_features, self.out_features))
+        self.attention = attention
+        self.Q = nn.Parameter(torch.Tensor(q_features, num_heads * head_features))
+        self.K = nn.Parameter(torch.Tensor(k_features, num_heads * head_features))
+        self.V = nn.Parameter(torch.Tensor(v_features, num_heads * head_features))
+        self.W = nn.Parameter(torch.Tensor(num_heads, head_features, out_features))
 
         self.reset_parameters()
 
@@ -40,17 +45,11 @@ class MultiHeadAttention(Attention):
             init.kaiming_uniform_(self.W)
 
     def attend(self, Q: torch.Tensor, K: torch.Tensor) -> torch.Tensor:
-        assert Q.ndimension() == K.ndimension(), f'{Q.ndimension()} != {K.ndimension()}'
-
-        Q = (Q @ self.Q).view(*Q.size()[:-1], self.num_heads, -1)
-        K = (K @ self.K).view(*K.size()[:-1], self.num_heads, -1)
-        return torch.einsum('...qhx,...khx->...hqk', (Q, K)) / (K.size(-1) ** 0.5)
+        Q = multi_head(Q @ self.Q, self.num_heads)
+        K = multi_head(K @ self.K, self.num_heads)
+        return self.attention.attend(Q, K)
 
     def interact(self, A: torch.Tensor, V: torch.Tensor, mask: torch.ByteTensor = None) -> torch.Tensor:
-        assert A.ndimension() == V.ndimension() + 1, f'{A.ndimension()} != {V.ndimension()} + 1'
-
-        V = (V @ self.V).view(*V.size()[:-1], self.num_heads, -1)
-        if mask is not None:
-            A = masked_fill(A, mask, filling_value=-float('inf'))
-        R = torch.einsum('...hqk,...khx->...qhx', (A, V))
-        return torch.einsum('...qhx,hxy->...qy', (R, self.W))
+        V = multi_head(V @ self.V, self.num_heads)
+        R = self.attention.interact(A, V, mask=mask)
+        return torch.einsum('...hqx,hxy->...qy', (R, self.W))

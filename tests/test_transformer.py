@@ -1,7 +1,7 @@
 from hypothesis import given
 
-from torch_attention import TransformerEncoder
 from tests import *
+from torch_attention import TransformerEncoder
 
 
 @given(
@@ -13,7 +13,7 @@ from tests import *
     dropout=st.floats(0., 1.),
     window_sizes=WINDOW_SIZES,
     bias=st.booleans(),
-    head_features=st.one_of(st.none(), SMALL_FEATURES),
+    head_features=SMALL_FEATURES,
     device=DEVICE,
 )
 def test_transformer_encoder(
