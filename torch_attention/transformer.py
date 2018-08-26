@@ -6,7 +6,7 @@ from torch import nn
 from torch.nn import init
 from more_itertools import interleave
 
-from torch_attention import MultiHeadAttention
+from torch_attention import DotProductAttention, MultiHeadAttention
 
 
 class FeedForwardLayer(nn.Sequential):
@@ -27,10 +27,9 @@ class FeedForwardLayer(nn.Sequential):
         out_dims = chain([hidden_features for _ in window_sizes[:-1]], [out_features])
 
         super(FeedForwardLayer, self).__init__(*interleave(
-            [nn.LeakyReLU(negative_slope=negative_slope, inplace=inplace)
-             for _ in window_sizes],
-            [nn.Conv1d(in_channels=in_dims, out_channels=out_dims, stride=1,
-                       kernel_size=window_size, padding=window_size // 2, bias=bias)
+            [nn.LeakyReLU(negative_slope=negative_slope, inplace=inplace) for _ in window_sizes],
+            [nn.Conv1d(in_channels=in_dims, out_channels=out_dims, bias=bias,
+                       kernel_size=window_size, padding=window_size // 2, stride=1)
              for in_dims, out_dims, window_size in zip(in_dims, out_dims, window_sizes)],
         ))
 
@@ -44,7 +43,7 @@ class FeedForwardLayer(nn.Sequential):
 
 
 class TransformerEncoderBlock(nn.Module):
-    def __init__(self, in_features: int, num_heads: int, head_features: int = None,
+    def __init__(self, in_features: int, num_heads: int, head_features: int,
                  window_sizes: Tuple[int, ...] = (1, 5, 1), dropout: float = 0.1, bias: bool = False) -> None:
         super(TransformerEncoderBlock, self).__init__()
 
@@ -53,6 +52,9 @@ class TransformerEncoderBlock(nn.Module):
         self.attention = MultiHeadAttention(
             num_heads=num_heads, head_features=head_features, out_features=in_features,
             q_features=in_features, k_features=in_features, v_features=in_features,
+            attention=DotProductAttention(
+                q_k_features=head_features, v_features=head_features,
+            )
         )
         self.dropout1 = nn.Dropout(dropout, inplace=True)
         self.layer_norm1 = nn.LayerNorm(in_features)
@@ -77,7 +79,7 @@ class TransformerEncoderBlock(nn.Module):
 
 
 class TransformerEncoder(nn.Sequential):
-    def __init__(self, num_layers: int, in_features: int, num_heads: int, head_features: int = None,
+    def __init__(self, num_layers: int, in_features: int, num_heads: int, head_features: int,
                  window_sizes: Tuple[int, ...] = (1, 5, 1), dropout: float = 0.1, bias: bool = False) -> None:
         super(TransformerEncoder, self).__init__(*[
             TransformerEncoderBlock(
@@ -92,5 +94,5 @@ class TransformerEncoder(nn.Sequential):
 
 
 if __name__ == '__main__':
-    net = TransformerEncoder(num_layers=3, in_features=512, num_heads=8)
+    net = TransformerEncoder(num_layers=3, in_features=512, num_heads=8, head_features=64)
     print(net)
