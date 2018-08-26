@@ -15,6 +15,10 @@ class Attention(nn.Module, metaclass=ABCMeta):
         self.v_features = v_features
         self.out_features = out_features
 
+    def extra_repr(self):
+        return f'q_features={self.q_features}, k_features={self.k_features}, ' \
+               f'v_features={self.v_features}, out_features={self.out_features}'
+
     def attend(self, Q: torch.Tensor, K: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
 
@@ -31,6 +35,7 @@ class Attention(nn.Module, metaclass=ABCMeta):
 from torch_attention.attentions import DotProductAttention, BiLinearAttention, FacetsAttention
 from torch_attention.multi_head import MultiHeadAttention
 from torch_attention.embedding import PositionEmbedding
+from torch_attention.transformer import TransformerEncoder
 
 __all__ = [
     'masked_fill',
@@ -38,4 +43,5 @@ __all__ = [
     'DotProductAttention', 'BiLinearAttention', 'FacetsAttention',
     'MultiHeadAttention',
     'PositionEmbedding',
+    'TransformerEncoder',
 ]
