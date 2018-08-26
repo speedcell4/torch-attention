@@ -29,9 +29,11 @@ class Attention(nn.Module, metaclass=ABCMeta):
 
 
 from .attentions import DotProductAttention, BiLinearAttention, FacetsAttention
+from .multi_head import MultiHeadAttention
 
 __all__ = [
     'masked_fill',
     'Attention',
     'DotProductAttention', 'BiLinearAttention', 'FacetsAttention',
+    'MultiHeadAttention',
 ]
